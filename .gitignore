@@ -1,0 +1,29 @@
+# Interim results
+*.pkl
+
+# MDS solutions (incomplete)
+INDSCAL/
+MDS_results/
+predictions/
+results/
+
+indscal.py
+mds_confusion.py
+
+# Structured data
+*.npy
+
+# The paper
+nosofsky_gold_JEPHPP_2018.pdf
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env
+
+# OS files
+.DS_Store
