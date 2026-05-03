@@ -27,3 +27,6 @@ venv/
 
 # OS files
 .DS_Store
+
+# Other models
+other_models.py
