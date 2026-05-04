@@ -13,7 +13,6 @@ Choice probability is proportional to the similarity between a studied item and 
 
 $$
 p_{ij} = \frac{b_j \cdot s_{ij}}{\sum_k b_k \cdot s_{ik}}, \quad s_{ij} = e^{-c \cdot d_{ij}}, \quad b_j^{(HP)} = B \cdot b_j
-
 $$
 
 Parameters: 15 free biases + 1 determined, boost $B$ for high-payoff items, $c$ per set size —  **19 total** .
