@@ -422,7 +422,7 @@ def plot_predicted_vs_observed_comparison(predictions_dict, observed_counts,
                                           n_ss, n_pos,
                                           layout=None,
                                           error_type='sem',
-                                          markersize=6,
+                                          markersize=8,
                                           legend_fontsize=12,
                                           legend_title_fontsize=13,
                                           legend_markersize=12):
@@ -456,12 +456,12 @@ def plot_predicted_vs_observed_comparison(predictions_dict, observed_counts,
                      title_fontsize=legend_title_fontsize,
                      frameon=True, labelspacing=0.5)
 
-    fig.suptitle('Predicted vs Observed\n(averaged across SS & Position)',
+    fig.suptitle('Predicted vs Observed\n(averaged across Set-Size & Position)',
                  fontsize=legend_title_fontsize + 4, fontweight='bold', y=1.0)
 
     gs   = fig.add_gridspec(nrows, ncols, top=0.84, bottom=0.1,
                           left=0.1, right=0.98,
-                          hspace=0.15, wspace=0.25)
+                          hspace=0.15, wspace=0.05)
     axes = gs.subplots(sharex=True, sharey=True)
     if nrows == 1:
         axes = axes[None, :]
@@ -512,6 +512,7 @@ def plot_predicted_vs_observed_comparison(predictions_dict, observed_counts,
     fig.text(0.5,  0.02, x_label, ha='center',
              fontsize=legend_title_fontsize + 1, fontweight='bold')
     fig.text(0.02, 0.5,  y_label, va='center', rotation='vertical',
+             multialignment='center',
              fontsize=legend_title_fontsize + 1, fontweight='bold')
     plt.show()
 
