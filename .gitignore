@@ -1,17 +1,6 @@
-# Interim results
-*.pkl
-
-# MDS solutions (incomplete)
-INDSCAL/
-MDS_results/
-predictions/
-results/
-
-indscal.py
-mds_confusion.py
-
-# Structured data
-*.npy
+# Subject 4 results (for class presentation)
+results/Fixed_MDS/Subject_4/
+results/Free_MDS/Subject_4/
 
 # The paper
 nosofsky_gold_JEPHPP_2018.pdf
@@ -29,5 +18,5 @@ venv/
 # OS files
 .DS_Store
 
-# Other models
+# Other models (draft files, not part of the main analysis)
 other_models.py

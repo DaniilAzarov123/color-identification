@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import glob
 import re
+import os
 
 from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
@@ -342,7 +343,8 @@ def plot_predicted_vs_observed(pred_probs, observed_counts,
                                markersize=6,
                                legend_fontsize=10,
                                legend_title_fontsize=15,
-                               legend_markersize=15):
+                               legend_markersize=15,
+                               save_path=None):
     n_subj = len(list(subjects))
     n_cond = n_ss * n_pos
 
@@ -414,6 +416,13 @@ def plot_predicted_vs_observed(pred_probs, observed_counts,
     fig.text(0.5,  0.02, x_label, ha='center', fontsize=15, fontweight='bold')
     fig.text(0.01, 0.45, y_label, va='center', rotation='vertical',
              multialignment='center', fontsize=15, fontweight='bold')
+    
+    if save_path is not None:
+        os.makedirs(save_path, exist_ok=True)
+        fig.savefig(os.path.join(save_path, f'{model_name}.png'),
+                    dpi=150, bbox_inches='tight')
+        print(f'Saved: {os.path.join(save_path, model_name)}.png')
+    
     plt.show()
 
 
@@ -425,7 +434,8 @@ def plot_predicted_vs_observed_comparison(predictions_dict, observed_counts,
                                           markersize=8,
                                           legend_fontsize=12,
                                           legend_title_fontsize=13,
-                                          legend_markersize=12):
+                                          legend_markersize=12,
+                                          save_path=None):
     n_subj = len(list(subjects))
     n_cond = n_ss * n_pos
 
@@ -514,98 +524,17 @@ def plot_predicted_vs_observed_comparison(predictions_dict, observed_counts,
     fig.text(0.02, 0.5,  y_label, va='center', rotation='vertical',
              multialignment='center',
              fontsize=legend_title_fontsize + 1, fontweight='bold')
+    
+    if save_path is not None:
+        os.makedirs(save_path, exist_ok=True)
+        fig.savefig(os.path.join(save_path, f'all_models_pred_vs_obs.png'),
+                    dpi=150, bbox_inches='tight')
+        print(f'Saved: {os.path.join(save_path, "all_models_pred_vs_obs.png")}')
+    
     plt.show()
 
 
-def plot_pred_vs_obs_subject_avgpos(pred_probs, observed_counts,
-                                    set_sizes, positions, subjects,
-                                    n_ss, n_pos,
-                                    subject_id=4,
-                                    model_name='Model'):
-    n_subj = len(list(subjects))
-    n_cond = n_ss * n_pos
-
-    pred_reshaped = pred_probs.reshape(n_subj, n_cond, 16, 16)
-    obs_counts_r  = observed_counts.reshape(n_subj, n_cond, 16, 16)
-
-    subj_list = list(subjects)
-    subj_idx  = subj_list.index(subject_id)
-
-    pred_subj = pred_reshaped[subj_idx]
-    obs_subj  = obs_counts_r[subj_idx]
-
-    fig, axes = plt.subplots(1, n_ss, figsize=(15, 6), sharey=True)
-    fig.suptitle(
-        f'{model_name}: Predicted vs Observed (averaged across positions)\n(Subject {subject_id})',
-        fontsize=16, fontweight='bold'
-    )
-
-    styles = {
-        'correct_high':   dict(marker='o', color='navy',      markersize=8, label='Correct Resp., High Payoff',   linestyle='None', zorder=5),
-        'correct_low':    dict(marker='^', color='navy',      markersize=8, label='Correct Resp., Low Payoff',    linestyle='None', zorder=4),
-        'incorrect_high': dict(marker='s', color='steelblue', markersize=6, label='Incorrect Resp., High Payoff', linestyle='None', markerfacecolor='none', zorder=3),
-        'incorrect_low':  dict(marker='x', color='steelblue', markersize=6, label='Incorrect Resp., Low Payoff',  linestyle='None', zorder=2),
-    }
-
-    for i, ss in enumerate(set_sizes):
-        ax = axes[i]
-
-        pred_relabeled = np.zeros((n_pos, 16, 16))
-        obs_relabeled  = np.zeros((n_pos, 16, 16))
-
-        for j, pos in enumerate(positions):
-            cond_idx = i * n_pos + j
-            p        = pos - 1
-
-            pred_mat = pred_subj[cond_idx]
-            pred_relabeled[j] = np.roll(np.roll(pred_mat, -p, axis=0), -p, axis=1)
-
-            obs_mat = obs_subj[cond_idx].astype(float)
-            obs_mat = obs_mat / (obs_mat.sum(axis=1, keepdims=True) + 1e-12)
-            obs_relabeled[j] = np.roll(np.roll(obs_mat, -p, axis=0), -p, axis=1)
-
-        pred_avg = pred_relabeled.mean(axis=0)
-        obs_avg  = obs_relabeled.mean(axis=0)
-
-        cat_pred = {k: [] for k in styles}
-        cat_obs  = {k: [] for k in styles}
-
-        for row in range(16):
-            for col in range(16):
-                correct = (row == col)
-                high    = (col == 0)
-                if   correct and high:  cat = 'correct_high'
-                elif correct:           cat = 'correct_low'
-                elif high:              cat = 'incorrect_high'
-                else:                   cat = 'incorrect_low'
-                cat_pred[cat].append(pred_avg[row, col])
-                cat_obs[cat].append(obs_avg[row, col])
-
-        for cat, style in styles.items():
-            if cat_pred[cat]:
-                ax.plot(cat_pred[cat], cat_obs[cat], **style)
-
-        lim = 1.05
-        ax.plot([0, lim], [0, lim], 'b-', linewidth=1)
-        ax.set_xlim(0, lim)
-        ax.set_ylim(0, lim)
-        ax.set_title(f'Set Size {ss}', fontsize=12, fontweight='bold')
-        ax.set_xlabel('Predicted Probability', fontsize=11)
-        if i == 0:
-            ax.set_ylabel('Observed Probability', fontsize=11)
-
-    handles = [plt.Line2D([0], [0], **{k: v for k, v in s.items() if k != 'zorder'})
-               for s in styles.values()]
-    labels  = [s['label'] for s in styles.values()]
-    fig.legend(handles, labels, fontsize=11, loc='upper center',
-               bbox_to_anchor=(0.5, 0.88), ncol=4, frameon=True)
-
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.75)
-    plt.show()
-
-
-def plot_aic_bic(comparison_df):
+def plot_aic_bic(comparison_df, save_path=None):
     fig, ax = plt.subplots(figsize=(12, 5))
 
     x     = np.arange(len(comparison_df['model']))
@@ -621,4 +550,11 @@ def plot_aic_bic(comparison_df):
     ax.set_ylim([miny, maxy])
     ax.legend(fontsize=15, loc='upper right', ncol=2)
     plt.tight_layout()
+    
+    if save_path is not None:
+        os.makedirs(save_path, exist_ok=True)
+        fig.savefig(os.path.join(save_path, 'AIC_BIC.png'),
+                    dpi=150, bbox_inches='tight')
+        print(f'Saved: {os.path.join(save_path, "AIC_BIC.png")}')
+    
     plt.show()
