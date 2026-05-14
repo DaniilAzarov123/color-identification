@@ -14,7 +14,7 @@ from colormath.color_conversions import convert_color
 from models import (
     SCM, SCM_mix, TCC, TCC_mix,
     unpack_SCM_params, unpack_SCM_mix_params,
-    unpack_TCC_params, unpack_TCC_mix_params,
+    unpack_TCC_mix_params,
     init_coords_circle
 )
 
@@ -83,45 +83,6 @@ def load_data(data_folder, set_sizes, positions):
 
         data[subject_id] = {'individual': individual, 'aggregated': aggregated}
     return data
-
-
-# def attach_mds_distances(data, subjects, set_sizes, positions,
-#                          use_single=True, mds_folder='MDS_results'):
-#     """Attach MDS coordinates and compute pairwise Euclidean distances."""
-#     n_items = 16
-#     if use_single:
-#         r      = 1
-#         angles = np.linspace(np.pi/2, np.pi/2 - 2*np.pi, n_items, endpoint=False)
-#         coords = np.column_stack((r * np.cos(angles), r * np.sin(angles)))
-#         for subj in subjects:
-#             for ss in set_sizes:
-#                 for pos in positions:
-#                     data[subj]['individual'][ss][pos]['mds_coords'] = coords
-#     else:
-#         mds_solution = pd.read_csv(f'{mds_folder}/stimulus_coordinates.csv')
-#         mds_weights  = pd.read_csv(f'{mds_folder}/subject_weights.csv')
-#         base_coords  = mds_solution.loc[:, 'dim1':'dim2'].values
-#         for subj in subjects:
-#             for ss in set_sizes:
-#                 for pos in positions:
-#                     w = mds_weights.loc[
-#                         (mds_weights['subject'] == subj) &
-#                         (mds_weights['set_size'] == ss) &
-#                         (mds_weights['position'] == pos),
-#                         'dim1':'dim2'
-#                     ].values
-#                     data[subj]['individual'][ss][pos]['mds_coords'] = base_coords * w
-
-#     for subj in subjects:
-#         for ss in set_sizes:
-#             for pos in positions:
-#                 coords    = data[subj]['individual'][ss][pos]['mds_coords']
-#                 distances = np.linalg.norm(
-#                     coords[:, None, :] - coords[None, :, :], axis=-1
-#                 )
-#                 data[subj]['individual'][ss][pos]['mds_distances'] = distances
-
-#     return data
 
 
 # ============================================================
