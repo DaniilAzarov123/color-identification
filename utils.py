@@ -15,6 +15,7 @@ from models import (
     SCM, SCM_mix, TCC, TCC_mix,
     unpack_SCM_params, unpack_SCM_mix_params,
     unpack_TCC_params, unpack_TCC_mix_params,
+    init_coords_circle
 )
 
 # ============================================================
@@ -84,43 +85,43 @@ def load_data(data_folder, set_sizes, positions):
     return data
 
 
-def attach_mds_distances(data, subjects, set_sizes, positions,
-                         use_single=True, mds_folder='MDS_results'):
-    """Attach MDS coordinates and compute pairwise Euclidean distances."""
-    n_items = 16
-    if use_single:
-        r      = 1
-        angles = np.linspace(np.pi/2, np.pi/2 - 2*np.pi, n_items, endpoint=False)
-        coords = np.column_stack((r * np.cos(angles), r * np.sin(angles)))
-        for subj in subjects:
-            for ss in set_sizes:
-                for pos in positions:
-                    data[subj]['individual'][ss][pos]['mds_coords'] = coords
-    else:
-        mds_solution = pd.read_csv(f'{mds_folder}/stimulus_coordinates.csv')
-        mds_weights  = pd.read_csv(f'{mds_folder}/subject_weights.csv')
-        base_coords  = mds_solution.loc[:, 'dim1':'dim2'].values
-        for subj in subjects:
-            for ss in set_sizes:
-                for pos in positions:
-                    w = mds_weights.loc[
-                        (mds_weights['subject'] == subj) &
-                        (mds_weights['set_size'] == ss) &
-                        (mds_weights['position'] == pos),
-                        'dim1':'dim2'
-                    ].values
-                    data[subj]['individual'][ss][pos]['mds_coords'] = base_coords * w
+# def attach_mds_distances(data, subjects, set_sizes, positions,
+#                          use_single=True, mds_folder='MDS_results'):
+#     """Attach MDS coordinates and compute pairwise Euclidean distances."""
+#     n_items = 16
+#     if use_single:
+#         r      = 1
+#         angles = np.linspace(np.pi/2, np.pi/2 - 2*np.pi, n_items, endpoint=False)
+#         coords = np.column_stack((r * np.cos(angles), r * np.sin(angles)))
+#         for subj in subjects:
+#             for ss in set_sizes:
+#                 for pos in positions:
+#                     data[subj]['individual'][ss][pos]['mds_coords'] = coords
+#     else:
+#         mds_solution = pd.read_csv(f'{mds_folder}/stimulus_coordinates.csv')
+#         mds_weights  = pd.read_csv(f'{mds_folder}/subject_weights.csv')
+#         base_coords  = mds_solution.loc[:, 'dim1':'dim2'].values
+#         for subj in subjects:
+#             for ss in set_sizes:
+#                 for pos in positions:
+#                     w = mds_weights.loc[
+#                         (mds_weights['subject'] == subj) &
+#                         (mds_weights['set_size'] == ss) &
+#                         (mds_weights['position'] == pos),
+#                         'dim1':'dim2'
+#                     ].values
+#                     data[subj]['individual'][ss][pos]['mds_coords'] = base_coords * w
 
-    for subj in subjects:
-        for ss in set_sizes:
-            for pos in positions:
-                coords    = data[subj]['individual'][ss][pos]['mds_coords']
-                distances = np.linalg.norm(
-                    coords[:, None, :] - coords[None, :, :], axis=-1
-                )
-                data[subj]['individual'][ss][pos]['mds_distances'] = distances
+#     for subj in subjects:
+#         for ss in set_sizes:
+#             for pos in positions:
+#                 coords    = data[subj]['individual'][ss][pos]['mds_coords']
+#                 distances = np.linalg.norm(
+#                     coords[:, None, :] - coords[None, :, :], axis=-1
+#                 )
+#                 data[subj]['individual'][ss][pos]['mds_distances'] = distances
 
-    return data
+#     return data
 
 
 # ============================================================
@@ -138,18 +139,7 @@ def extract_observed(data, subjects, set_sizes, positions):
 
 
 def prepare_data(data, subjects, set_sizes, positions):
-    """
-    Prepare data arrays for model fitting.
-
-    Returns:
-        distances:      (C, 16, 16)
-        counts:         (C, 16, 1)
-        pos_array:      (C,)  0-indexed HP position
-        ss_idx:         (C,)  0-indexed set size
-        all_conditions: list of (subj, ss, pos) tuples
-    """
     all_conditions = []
-    distances      = []
     counts         = []
     pos_array      = []
     ss_idx         = []
@@ -158,13 +148,11 @@ def prepare_data(data, subjects, set_sizes, positions):
         for i_ss, ss in enumerate(set_sizes):
             for pos in positions:
                 all_conditions.append((subj, ss, pos))
-                distances.append(data[subj]['individual'][ss][pos]['mds_distances'])
                 counts.append(data[subj]['individual'][ss][pos]['data'].sum(axis=1, keepdims=True))
                 pos_array.append(pos - 1)
                 ss_idx.append(i_ss)
 
     return (
-        np.array(distances),   # (C, 16, 16)
         np.array(counts),      # (C, 16, 1)
         np.array(pos_array),   # (C,)
         np.array(ss_idx),      # (C,)
@@ -176,14 +164,16 @@ def prepare_data(data, subjects, set_sizes, positions):
 # Optimization
 # ============================================================
 
-def validity_checks(params, model):
+def validity_checks(params, model, mds_fixed=True, n_subjects=1):
     if model is SCM:
-        biases, _, _ = unpack_SCM_params(params)
+        biases, _, _, _ = unpack_SCM_params(params, mds_fixed=mds_fixed,
+                                            n_subjects=n_subjects)
         if np.any(biases <= 0):
             return False
 
     elif model is SCM_mix:
-        biases, _, _, memory_params, gamma = unpack_SCM_mix_params(params)
+        biases, _, _, memory_params, gamma, _ = \
+            unpack_SCM_mix_params(params, mds_fixed=mds_fixed, n_subjects=n_subjects)
         if (np.any(biases <= 0) or
                 np.any(memory_params < 0) or
                 np.any(memory_params > 1) or
@@ -194,7 +184,8 @@ def validity_checks(params, model):
         return True
 
     elif model is TCC_mix:
-        _, _, _, _, hp_boost, p_mem, gamma = unpack_TCC_mix_params(params)
+        _, _, _, _, hp_boost, p_mem, gamma, _ = \
+            unpack_TCC_mix_params(params, mds_fixed=mds_fixed, n_subjects=n_subjects)
         if np.any(p_mem < 0) or np.any(p_mem > 1) or gamma < 0 or hp_boost < 0:
             return False
 
@@ -207,6 +198,7 @@ def validity_checks(params, model):
 def fit_model(loss_func, initial_params, params_bounds, model,
               observed_counts, prep_data,
               n_points=500, x_range=(-3, 10),
+              mds_fixed=True,
               warmup_options=None, final_options=None, print_every=10):
 
     if warmup_options is None:
@@ -221,16 +213,16 @@ def fit_model(loss_func, initial_params, params_bounds, model,
             if iterations[0] % print_every == 0:
                 if model is TCC or model is TCC_mix:
                     loss = loss_func(x, model, observed_counts, prep_data,
-                                     n_points=n_points, x_range=x_range)
+                                     n_points=n_points, x_range=x_range, mds_fixed=mds_fixed)
                 else:
-                    loss = loss_func(x, model, observed_counts, prep_data)
+                    loss = loss_func(x, model, observed_counts, prep_data, mds_fixed=mds_fixed)
                 print(f"  [{stage}] Iteration {iterations[0]:4d}: loss = {loss:.6f}")
         return callback
 
     if model is SCM or model is SCM_mix:
-        args_tuple = (model, observed_counts, prep_data)
+        args_tuple = (model, observed_counts, prep_data, mds_fixed)
     elif model is TCC or model is TCC_mix:
-        args_tuple = (model, observed_counts, prep_data, n_points, x_range)
+        args_tuple = (model, observed_counts, prep_data, n_points, x_range, mds_fixed)
 
     print("=== Warmup ===")
     fit_warmup = minimize(
@@ -557,4 +549,73 @@ def plot_aic_bic(comparison_df, save_path=None):
                     dpi=150, bbox_inches='tight')
         print(f'Saved: {os.path.join(save_path, "AIC_BIC.png")}')
     
+    plt.show()
+
+
+def plot_mds_solutions(fit, subjects, item_colors,
+                       mds_fixed=True, unpack_func=None,
+                       n_items=16, 
+                       model_name=None, save_path=None):
+    """
+    Plot MDS solutions for each subject.
+
+    Args:
+        fit:          single fit object (all subjects fitted together)
+        subjects:     list of subject ids
+        item_colors:  list of 16 (r,g,b) tuples
+        mds_fixed:    if True, plot unit circle (same for all subjects)
+        unpack_func:  unpack function that takes fit.x and returns (..., coords)
+                      where coords is (n_subjects, 16, 2)
+        n_items:      number of stimuli
+        save_path:    folder to save the plot, or None
+    """
+    subjects = list(subjects)
+    n_subj   = len(subjects)
+    ncols    = 2
+    nrows    = int(np.ceil(n_subj / ncols))
+
+    if mds_fixed:
+        fixed_coords       = init_coords_circle(n_items).reshape(n_items, 2)
+        coords_per_subject = {subj: fixed_coords for subj in subjects}
+    else:
+        *_, coords_all     = unpack_func(fit.x)                           # (n_subj, 16, 2)
+        coords_per_subject = {subj: coords_all[i]
+                              for i, subj in enumerate(subjects)}
+
+    fig, axes = plt.subplots(nrows, ncols,
+                             figsize=(6 * ncols, 5 * nrows),
+                             squeeze=False)
+
+    for ax_idx, subj in enumerate(subjects):
+        row_idx = ax_idx // ncols
+        col_idx = ax_idx  % ncols
+        ax      = axes[row_idx, col_idx]
+
+        coords  = coords_per_subject[subj]                                 # (16, 2)
+
+        for i in range(n_items):
+            ax.scatter(coords[i, 0], coords[i, 1],
+                       color=item_colors[i],
+                       s=200, zorder=3,
+                       edgecolors='white', linewidths=0.5)
+
+        ax.set_title(f'S{subj}', fontsize=12, fontweight='bold', loc='right')
+        ax.set_xlabel('Dimension 1' if row_idx == nrows - 1 else '')
+        ax.set_ylabel('Dimension 2' if col_idx == 0 else '')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.set_aspect('equal')
+
+    for ax_idx in range(n_subj, nrows * ncols):
+        axes[ax_idx // ncols, ax_idx % ncols].set_visible(False)
+
+    fig.suptitle(f'Individual MDS Solutions\n({model_name})', fontsize=16, fontweight='bold', y = 1.0)
+    plt.tight_layout()
+
+    if save_path is not None:
+        os.makedirs(save_path, exist_ok=True)
+        fig.savefig(os.path.join(save_path, f'{model_name}_MDS_solutions.png'),
+                    dpi=150, bbox_inches='tight')
+        print(f'Saved: {os.path.join(save_path, f"{model_name}_MDS_solutions.png")}')
+
     plt.show()

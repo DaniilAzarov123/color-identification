@@ -1,0 +1,251 @@
+Subjects: [1, 2, 3, 4, 5, 6, 7, 8]
+Set sizes: [2, 5, 8]
+Positions: [3, 7, 11, 15]
+MDS: fixed (unit circle)
+TCC integration: n_points=100, x_range=(-3, 9)
+
+============================================================
+
+MODEL COMPARISON
+------------------------------------------------------------
+Model            n_params     NLL          AIC          BIC
+------------------------------------------------------------
+SCM              19           43162.77     86363.54     86521.13
+SCM-mix          23           40805.75     81657.51     81848.28
+TCC              21           41129.66     82301.32     82475.50
+TCC-mix          25           41120.27     82290.55     82497.91
+
+============================================================
+
+CORRELATIONS (predicted vs observed)
+
+----------------------------------------
+SCM
+----------------------------------------
+Condition            r          p-value
+SS=2, Pos=3        r=0.964    p=0.000
+SS=2, Pos=7        r=0.977    p=0.000
+SS=2, Pos=11       r=0.962    p=0.000
+SS=2, Pos=15       r=0.965    p=0.000
+SS=5, Pos=3        r=0.941    p=0.000
+SS=5, Pos=7        r=0.946    p=0.000
+SS=5, Pos=11       r=0.927    p=0.000
+SS=5, Pos=15       r=0.931    p=0.000
+SS=8, Pos=3        r=0.929    p=0.000
+SS=8, Pos=7        r=0.936    p=0.000
+SS=8, Pos=11       r=0.938    p=0.000
+SS=8, Pos=15       r=0.925    p=0.000
+Mean r: 0.945
+
+----------------------------------------
+SCM-mix
+----------------------------------------
+Condition            r          p-value
+SS=2, Pos=3        r=0.983    p=0.000
+SS=2, Pos=7        r=0.988    p=0.000
+SS=2, Pos=11       r=0.984    p=0.000
+SS=2, Pos=15       r=0.986    p=0.000
+SS=5, Pos=3        r=0.975    p=0.000
+SS=5, Pos=7        r=0.971    p=0.000
+SS=5, Pos=11       r=0.967    p=0.000
+SS=5, Pos=15       r=0.982    p=0.000
+SS=8, Pos=3        r=0.976    p=0.000
+SS=8, Pos=7        r=0.974    p=0.000
+SS=8, Pos=11       r=0.983    p=0.000
+SS=8, Pos=15       r=0.976    p=0.000
+Mean r: 0.979
+
+----------------------------------------
+TCC
+----------------------------------------
+Condition            r          p-value
+SS=2, Pos=3        r=0.979    p=0.000
+SS=2, Pos=7        r=0.987    p=0.000
+SS=2, Pos=11       r=0.978    p=0.000
+SS=2, Pos=15       r=0.980    p=0.000
+SS=5, Pos=3        r=0.973    p=0.000
+SS=5, Pos=7        r=0.974    p=0.000
+SS=5, Pos=11       r=0.964    p=0.000
+SS=5, Pos=15       r=0.979    p=0.000
+SS=8, Pos=3        r=0.967    p=0.000
+SS=8, Pos=7        r=0.974    p=0.000
+SS=8, Pos=11       r=0.982    p=0.000
+SS=8, Pos=15       r=0.968    p=0.000
+Mean r: 0.975
+
+----------------------------------------
+TCC-mix
+----------------------------------------
+Condition            r          p-value
+SS=2, Pos=3        r=0.978    p=0.000
+SS=2, Pos=7        r=0.987    p=0.000
+SS=2, Pos=11       r=0.977    p=0.000
+SS=2, Pos=15       r=0.979    p=0.000
+SS=5, Pos=3        r=0.972    p=0.000
+SS=5, Pos=7        r=0.974    p=0.000
+SS=5, Pos=11       r=0.963    p=0.000
+SS=5, Pos=15       r=0.978    p=0.000
+SS=8, Pos=3        r=0.966    p=0.000
+SS=8, Pos=7        r=0.974    p=0.000
+SS=8, Pos=11       r=0.982    p=0.000
+SS=8, Pos=15       r=0.967    p=0.000
+Mean r: 0.975
+
+============================================================
+
+PER-MODEL PARAMETERS
+
+------------------------------------------------------------
+SCM — best-fitting parameters
+------------------------------------------------------------
+Loss normalized (as fitted): 1.459780
+Loss de-normalized (NLL, N=29568): 43162.77
+Optimizer message: CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL
+
+Biases:
+  Item  1: 0.0459
+  Item  2: 0.0537
+  Item  3: 0.0607
+  Item  4: 0.0505
+  Item  5: 0.0509
+  Item  6: 0.0468
+  Item  7: 0.0715
+  Item  8: 0.0633
+  Item  9: 0.0437
+  Item 10: 0.0631
+  Item 11: 0.0857
+  Item 12: 0.0627
+  Item 13: 0.0832
+  Item 14: 0.0684
+  Item 15: 0.0791
+  Item 16: 0.0707
+Boost B: 11.0061
+c per set size:
+  SS=2: 5.0551
+  SS=5: 2.6330
+  SS=8: 1.6655
+
+------------------------------------------------------------
+SCM-mix — best-fitting parameters
+------------------------------------------------------------
+Loss normalized (as fitted): 1.380065
+Loss de-normalized (NLL, N=29568): 40805.75
+Optimizer message: CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL
+
+Biases:
+  Item  1: 0.0436
+  Item  2: 0.0545
+  Item  3: 0.0692
+  Item  4: 0.0522
+  Item  5: 0.0497
+  Item  6: 0.0483
+  Item  7: 0.0796
+  Item  8: 0.0660
+  Item  9: 0.0436
+  Item 10: 0.0625
+  Item 11: 0.0874
+  Item 12: 0.0596
+  Item 13: 0.0733
+  Item 14: 0.0642
+  Item 15: 0.0800
+  Item 16: 0.0662
+Boost B: 4.3014
+c per set size:
+  SS=2: 5.4927
+  SS=5: 3.8462
+  SS=8: 3.1293
+p_mem per set size:
+  SS=2: 0.9649
+  SS=5: 0.7970
+  SS=8: 0.6031
+Gamma: 2.2561
+
+------------------------------------------------------------
+TCC — best-fitting parameters
+------------------------------------------------------------
+Loss normalized (as fitted): 1.391019
+Loss de-normalized (NLL, N=29568): 41129.66
+Optimizer message: CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL
+
+Base d': 4.7136
+d' scales per set size:
+  SS=2: 1.0000  (d'=4.7136)
+  SS=5: 0.6417  (d'=3.0245)
+  SS=8: 0.4470  (d'=2.1072)
+c: 1.1424
+Biases:
+  Item  1: -0.2032
+  Item  2: -0.0775
+  Item  3: 0.0636
+  Item  4: -0.1049
+  Item  5: -0.1127
+  Item  6: -0.1519
+  Item  7: 0.1656
+  Item  8: 0.0324
+  Item  9: -0.2300
+  Item 10: 0.0136
+  Item 11: 0.2446
+  Item 12: -0.0471
+  Item 13: 0.1266
+  Item 14: 0.0199
+  Item 15: 0.1826
+  Item 16: 0.0723
+HP boost: 1.4600
+
+------------------------------------------------------------
+TCC-mix — best-fitting parameters
+------------------------------------------------------------
+Loss normalized (as fitted): 1.390702
+Loss de-normalized (NLL, N=29568): 41120.27
+Optimizer message: CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL
+
+Base d': 4.7502
+d' scales per set size:
+  SS=2: 1.0000  (d'=4.7502)
+  SS=5: 0.6555  (d'=3.1139)
+  SS=8: 0.4680  (d'=2.2230)
+c: 1.1286
+Biases:
+  Item  1: -0.2090
+  Item  2: -0.0794
+  Item  3: 0.0605
+  Item  4: -0.1103
+  Item  5: -0.1164
+  Item  6: -0.1554
+  Item  7: 0.1651
+  Item  8: 0.0350
+  Item  9: -0.2352
+  Item 10: 0.0191
+  Item 11: 0.2454
+  Item 12: -0.0479
+  Item 13: 0.1326
+  Item 14: 0.0213
+  Item 15: 0.1836
+  Item 16: 0.0805
+HP boost: 1.4950
+p_mem per set size:
+  SS=2: 0.9994
+  SS=5: 0.9882
+  SS=8: 0.9615
+Gamma: 1.0939
+
+============================================================
+
+MDS COORDINATES (for all models and subjects):
+
+  Item  1: (0.0000, 1.0000)
+  Item  2: (0.3827, 0.9239)
+  Item  3: (0.7071, 0.7071)
+  Item  4: (0.9239, 0.3827)
+  Item  5: (1.0000, 0.0000)
+  Item  6: (0.9239, -0.3827)
+  Item  7: (0.7071, -0.7071)
+  Item  8: (0.3827, -0.9239)
+  Item  9: (0.0000, -1.0000)
+  Item 10: (-0.3827, -0.9239)
+  Item 11: (-0.7071, -0.7071)
+  Item 12: (-0.9239, -0.3827)
+  Item 13: (-1.0000, -0.0000)
+  Item 14: (-0.9239, 0.3827)
+  Item 15: (-0.7071, 0.7071)
+  Item 16: (-0.3827, 0.9239)

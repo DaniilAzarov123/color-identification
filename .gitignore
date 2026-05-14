@@ -2,6 +2,9 @@
 results/Fixed_MDS/Subject_4/
 results/Free_MDS/Subject_4/
 
+# Unified file for all subjects data
+Data/*.pkl
+
 # The paper
 nosofsky_gold_JEPHPP_2018.pdf
 
